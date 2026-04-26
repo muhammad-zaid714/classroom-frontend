@@ -155,11 +155,11 @@
             div {
                 @apply text-center sm:text-left;
 
-                :first-child {
+                > :first-child {
                     @apply text-sm font-bold text-orange-600 mb-1;
                 }
 
-                :last-child {
+                > :last-child {
                     @apply text-xs text-foreground/60;
                 }
             }
