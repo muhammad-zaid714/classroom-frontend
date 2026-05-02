@@ -4,7 +4,7 @@ import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb"
 import { ListView } from "@/components/refine-ui/views/list-view"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DEPARTMENT_OPTIONS } from "@/constants/intex"
+import { DEPARTMENT_OPTIONS } from "@/constants"
 import { Subject } from "@/types"
 import { useTable } from "@refinedev/react-table"
 import { ColumnDef } from "@tanstack/react-table"
@@ -20,6 +20,7 @@ const SubjectsList = () => {
 
     const subjectTable = useTable<Subject>({
         columns:useMemo<ColumnDef<Subject>[]>(()=>[
+
             {id:'code',accessorKey:'code',size:100,
                 header:()=>(<p className="column-title ml-2">Code</p>),
                 cell:({getValue})=><Badge>{getValue<string>()}</Badge>
@@ -29,7 +30,7 @@ const SubjectsList = () => {
                 cell:({getValue})=><span className="text-foreground">{getValue<string>()}</span>,
                 filterFn:"includesString"
             },
-            {id:'department',accessorKey:'department',size:150,
+            {id:'department',accessorKey:'department.name',size:150,
                 header:()=>(<p className="column-title">Departments</p>),
                 cell:({getValue})=>(<Badge variant="secondary">{getValue<String>()}</Badge>)
             },
