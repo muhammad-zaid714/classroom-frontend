@@ -17,6 +17,8 @@ import { Layout } from "./components/refine-ui/layout/layout";
 import SubjectsList from "./pages/subjects/list";
 import SubjectsCreate from "./pages/subjects/create";
 import { dataProvider } from "./providers/data";
+import Classeslist from "./pages/classes/list";
+import ClassesCreate from "./pages/classes/create";
 
 function App() {
   return (
@@ -38,11 +40,19 @@ function App() {
                   name: "dashboard",
                   list: "/",
                   meta:{label:"Home",icon: <Home/>}
-                },{
+                },
+                {
                   name:"subjects",
                   list:"/subjects",
                   create:"/subjects/create",
                   meta:{label:"Subjects",icon: <Bookmark />}
+                }
+               ,
+                {
+                  name:"classes",
+                  list:"/classes",
+                  create:"/classes/create",
+                  meta:{label:"Classes",icon: <Bookmark />}
                 }
               ]}
             >
@@ -58,7 +68,13 @@ function App() {
                   <Route index element={<SubjectsList />} />
                   <Route path="create" element={<SubjectsCreate />} />
                 </Route>
+                <Route path='classes'>
+                  <Route index element={<Classeslist />} />
+                  <Route path="create" element={<ClassesCreate />} />
                 </Route>
+                 
+                </Route>
+  
               </Routes>
               <Toaster />
               <RefineKbar />
