@@ -1,7 +1,7 @@
 import { CreateView } from '@/components/refine-ui/views/create-view'
 import { Breadcrumb } from '@/components/refine-ui/layout/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { useBack, useList } from '@refinedev/core'
+import { HttpError, useBack, useList } from '@refinedev/core'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -21,6 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import UploadWidget from '@/components/upload-widget'
 import { Subject, User } from '@/types'
+
+type ClassFormValues = z.infer<typeof classSchema>;
 
 const ClassesCreate = () => {
     const back = useBack();
@@ -47,7 +49,10 @@ const ClassesCreate = () => {
     const subjectsLoading = subjectsQuery?.isLoading;
     const teachers = teachersQuery?.data?.data || [];
     const teachersLoading = teachersQuery?.isLoading;
-    const form = useForm<z.infer<typeof classSchema>>({
+    const form = useForm<ClassFormValues, HttpError, ClassFormValues>({
+        refineCoreProps: {
+            resource: 'classes',
+        },
         resolver: zodResolver(classSchema),
         defaultValues:{
             status:'active',
@@ -58,7 +63,7 @@ const ClassesCreate = () => {
         handleSubmit,
         formState:{isSubmitting,errors},
         control} = form;
-    const onSubmit = async (values: z.infer<typeof classSchema>) => {
+    const onSubmit = async (values: ClassFormValues) => {
         try {
             await onFinish(values);
         } catch (e) {
@@ -118,7 +123,7 @@ const ClassesCreate = () => {
                                 <FormMessage/>
                                 {errors.bannerCldPubId && !errors.bannerUrl&&(
                                     <p className="text-destructive text-sm">
-                                        {errors?.bannerCldPubId?.message}
+                                        {errors?.bannerCldPubId?.message?.toString()}
                                     </p>
                                 )}
                             </FormItem>
