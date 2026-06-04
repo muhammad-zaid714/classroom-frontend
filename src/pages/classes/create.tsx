@@ -1,11 +1,11 @@
 import { CreateView } from '@/components/refine-ui/views/create-view'
 import { Breadcrumb } from '@/components/refine-ui/layout/breadcrumb'
 import { Button } from '@/components/ui/button'
-import { useBack } from '@refinedev/core'
+import { useBack, useList } from '@refinedev/core'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {zodResolver} from '@hookform/resolvers/zod'
-import {useForm} from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from '@refinedev/react-hook-form'
 import { classSchema } from '@/lib/schema'
 import z from 'zod'
 import {
@@ -20,34 +20,50 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import UploadWidget from '@/components/upload-widget'
-
-const teachers = [
-    { id: 1, number: 101 },
-    { id: 2, number: 102 },
-    { id: 3, number: 103 },
-]
-
-const subjects = [
-    { id: 1, name: 'Mathematics', code: 'MATH' },
-    { id: 2, name: 'Biology', code: 'BIOL' },
-    { id: 3, name: 'Computer Science', code: 'COMP' },
-]
+import { Subject, User } from '@/types'
 
 const ClassesCreate = () => {
     const back = useBack();
+    const { query: subjectsQuery } = useList<Subject>({
+        resource: "subjects",
+        pagination: {
+            pageSize: 100,
+        },
+    });
+    const { query: teachersQuery } = useList<User>({
+        resource: "users",
+        filters: [
+            {
+                field: "role",
+                operator: "eq",
+                value: "teacher",
+            },
+        ],
+        pagination: {
+            pageSize: 100,
+        },
+    });
+    const subjects = subjectsQuery?.data?.data || [];
+    const subjectsLoading = subjectsQuery?.isLoading;
+    const teachers = teachersQuery?.data?.data || [];
+    const teachersLoading = teachersQuery?.isLoading;
     const form = useForm<z.infer<typeof classSchema>>({
         resolver: zodResolver(classSchema),
         defaultValues:{
             status:'active',
         }
     });
-    const {handleSubmit,formState:{isSubmitting,errors},control} = form;
-    const onSubmit = (values: z.infer<typeof classSchema>) => {
+    const {
+        refineCore:{onFinish},
+        handleSubmit,
+        formState:{isSubmitting,errors},
+        control} = form;
+    const onSubmit = async (values: z.infer<typeof classSchema>) => {
         try {
-            console.log("Form values:", values);
+            await onFinish(values);
         } catch (e) {
-            console.log("Error creating new Classes",e);
-            
+            console.log("Error creating new Classes", e);
+
         }
     };
     const bannerPublicId = form.watch("bannerCldPubId");
@@ -131,7 +147,10 @@ const ClassesCreate = () => {
                                     <FormLabel>Subject <span className='text-orange-600'>*
                                     </span> 
                                     </FormLabel>
-                                        <Select onValueChange={(value)=>field.onChange(Number(value))} value={field?.value?.toString()}>
+                                        <Select onValueChange=
+                                        {(value)=>field.onChange(Number(value))} 
+                                        value={field?.value?.toString()}
+                                        disabled= {subjectsLoading}>
                                     <FormControl>
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select a subject" />
@@ -156,7 +175,11 @@ const ClassesCreate = () => {
                                         <FormLabel>
                                             Teacher <span className='text-orange-600'>*</span>
                                         </FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select 
+                                        onValueChange={field.onChange} 
+                                        value={field.value}
+                                        disabled={teachersLoading}
+                                        >
                                             <FormControl>
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select a teacher" />
@@ -164,8 +187,11 @@ const ClassesCreate = () => {
                                             </FormControl>
                                             <SelectContent>
                                                 {teachers.map((teacher) => (
-                                                    <SelectItem key={teacher.id} value={teacher.id.toString()}>
-                                                        Teacher {teacher.number}
+                                                    <SelectItem key={teacher.id} 
+                                                    value={teacher.id.toString()}
+                                                    
+                                                    >
+                                                        Teacher {teacher.name}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
