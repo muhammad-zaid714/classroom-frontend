@@ -5,6 +5,10 @@ import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 if(!BACKEND_BASE_URL){
   throw new Error("BACKEND_BASE_URL is not defined in environment variables.");
 }
+const toApiResourcePath = (resource: string) => {
+  const normalizedResource = resource.replace(/^\/?api\/?/, "");
+  return `api/${normalizedResource}`;
+};
 const buildHTTPError = async (response: Response):Promise<HttpError> => {
   let message = "Request failed";
   try {
@@ -21,7 +25,7 @@ const buildHTTPError = async (response: Response):Promise<HttpError> => {
 }
 const options: CreateDataProviderOptions = {
   getList:{
-    getEndpoint: ({ resource }) => resource,
+    getEndpoint: ({ resource }) => toApiResourcePath(resource),
 
     buildQueryParams:async({pagination,filters,resource})=>{
       const page = pagination?.currentPage || 1;
@@ -49,7 +53,7 @@ const options: CreateDataProviderOptions = {
     }
   },
   create: {
-    getEndpoint: ({ resource }) => resource,
+    getEndpoint: ({ resource }) => toApiResourcePath(resource),
     buildBodyParams: async({variables})=> variables,
 
     mapResponse: async(response)=>{
